@@ -91,6 +91,7 @@ function socialFrame(content, theme, fmt, opts={}){
 function logoMark(theme, size=56){
   const isDark = ['deep','midnight'].includes(theme.id);
   const choice = (typeof state !== 'undefined' && state.logoChoice) ? state.logoChoice : 'icon-png';
+  if(typeof state !== 'undefined' && state.logoScale != null) size = size * state.logoScale;
 
   // Custom uploaded logo
   if(choice === 'custom' && typeof state !== 'undefined' && state.logoCustom){
@@ -288,8 +289,10 @@ const TPL_photo_overlay = {
     const pad = c.w * 0.06;
     const headSize = Math.min(c.w * 0.07, c.h * 0.08);
     const photo = fields.photo || '';
+    const photoScale = fields._photo_scale != null ? fields._photo_scale : 100;
+    const photoSize = photoScale === 100 ? 'cover' : `${photoScale}% auto`;
     const photoBg = photo
-      ? `background:url('${photo}') center/cover no-repeat;`
+      ? `background:url('${photo}') center/${photoSize} no-repeat;`
       : `background:linear-gradient(135deg, ${theme.accent}, ${theme.text});`;
     const inner = `
       <div style="position:absolute;inset:0;${photoBg}"></div>
@@ -470,9 +473,11 @@ const TPL_bts = {
     const photo = fields.photo || '';
     const photoCol = isLandscape ? '40%' : '100%';
     const textCol = isLandscape ? '60%' : '100%';
+    const photoScale = fields._photo_scale != null ? fields._photo_scale : 100;
+    const photoSize  = photoScale === 100 ? 'cover' : `${photoScale}% auto`;
 
     const photoBg = photo
-      ? `background:url('${photo}') center/cover no-repeat;`
+      ? `background:url('${photo}') center/${photoSize} no-repeat;`
       : `background:linear-gradient(135deg, ${theme.subtle}, ${theme.accent}); display:flex;align-items:center;justify-content:center;`;
 
     const photoBlock = `<div style="${isLandscape?`position:absolute;right:0;top:0;bottom:0;width:${photoCol};`:`width:100%;height:50%;`}${photoBg}">${photo ? '' : `<div style="color:${theme.muted};font-family:'JetBrains Mono',monospace;font-size:${c.w*0.018}px;letter-spacing:0.15em;opacity:0.5;">YOUR PHOTO</div>`}</div>`;
@@ -1056,6 +1061,7 @@ let state = {
   bgOpacity: 100,        // opacity %
   logoChoice: 'icon-png',
   logoCustom: null,
+  logoScale: 1,
   currentId: null,
   currentName: 'Untitled',
 };
@@ -1136,6 +1142,7 @@ function persistCurrent(name){
     bgOpacity: state.bgOpacity,
     logoChoice: state.logoChoice,
     logoCustom: state.logoCustom,
+    logoScale: state.logoScale,
     updated: Date.now(),
   };
   const idx = items.findIndex(d=>d.id===design.id);
@@ -1166,6 +1173,7 @@ function loadDesign(id){
   if(lc === 'svg-mark') lc = 'icon-png';
   state.logoChoice = lc;
   state.logoCustom = d.logoCustom || null;
+  state.logoScale = d.logoScale != null ? d.logoScale : 1;
   render();
   toast(`Loaded "${d.name}"`);
 }
@@ -1412,6 +1420,24 @@ function renderFieldEditor(){
         clear.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
         preview.appendChild(clear);
         group.appendChild(preview);
+
+        // Photo size slider
+        const scaleKey = '_' + field.key + '_scale';
+        const scaleVal = state.fields[scaleKey] != null ? state.fields[scaleKey] : 100;
+        const scaleWrap = el('div',{style:'margin-top:8px;'});
+        const scaleHead = el('div',{style:'display:flex;justify-content:space-between;font-size:11px;color:var(--stone);margin-bottom:4px;'});
+        scaleHead.appendChild(el('span',{text:'Photo Size'}));
+        const scaleDisplay = el('span',{style:'font-family:var(--f-mono);font-size:10px;color:var(--pebble);',text:scaleVal+'%'});
+        scaleHead.appendChild(scaleDisplay);
+        scaleWrap.appendChild(scaleHead);
+        const scaleRange = el('input',{type:'range',min:'50',max:'200',value:String(scaleVal),style:'width:100%;accent-color:var(--forest-core);'});
+        scaleRange.oninput = (e)=>{
+          state.fields[scaleKey] = +e.target.value;
+          scaleDisplay.textContent = e.target.value+'%';
+          renderCanvas();
+        };
+        scaleWrap.appendChild(scaleRange);
+        group.appendChild(scaleWrap);
       }
 
     } else if(field.type === 'image_block'){
@@ -1966,6 +1992,14 @@ function render(){
   renderLogos();
   renderBackgrounds();
   renderSaved();
+  // Sync logo scale sliders to current state
+  const scaleInt = Math.round(state.logoScale * 100);
+  ['logo-scale-slider','logo-scale-slider-m'].forEach(id=>{
+    const s = document.getElementById(id); if(s) s.value = scaleInt;
+  });
+  ['logo-scale-val','logo-scale-val-m'].forEach(id=>{
+    const v = document.getElementById(id); if(v) v.textContent = scaleInt+'%';
+  });
   // canvas needs to render after layout so dimensions are known
   setTimeout(renderCanvas, 0);
 }
@@ -2092,6 +2126,51 @@ function generateEmailHTML(){
   return email;
 }
 
+async function exportEmailZip(){
+  const html = generateEmailHTML();
+  if(!html){ toast('Switch to Newsletter mode first'); return; }
+
+  toast('Building ZIP…');
+
+  const zip = new JSZip();
+  let processed = html;
+  let idx = 0;
+  const extracted = [];
+
+  // Find every base64 data-URL image and pull it out
+  const re = /src="(data:(image\/[a-zA-Z+]+);base64,([^"]+))"/g;
+  let m;
+  while((m = re.exec(html)) !== null){
+    const full     = m[1];                          // full data: URL
+    const mime     = m[2];                          // e.g. image/png
+    const b64      = m[3];                          // raw base64
+    const ext      = mime.split('/')[1].replace('jpeg','jpg').replace('svg+xml','svg');
+    const filename = `image-${++idx}.${ext}`;
+    extracted.push({ filename, b64, mime });
+    processed = processed.replace(full, `cid:${filename}`);
+  }
+
+  // Prepend a usage comment so it's clear how to wire CID attachments
+  const note = extracted.length > 0
+    ? `<!-- EMAIL PACKAGE\n     ${extracted.length} image(s) are included as separate files.\n     Attach each with Content-ID matching its filename, e.g.:\n       Content-Disposition: inline\n       Content-ID: <image-1.jpg>\n     Works with Outlook, Apple Mail, and email APIs (SendGrid, Mailgun, etc.).\n     For Mailchimp / hosted tools: upload images to your CDN and replace\n     the cid: references with their public URLs before pasting. -->\n`
+    : '';
+  processed = processed.replace('<!DOCTYPE html>', `<!DOCTYPE html>\n${note}`);
+
+  zip.file('email.html', processed);
+  extracted.forEach(img => zip.file(img.filename, img.b64, { base64: true }));
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.download = `${(state.currentName || 'newsletter').replace(/[^a-z0-9]/gi, '_')}_email.zip`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  toast(extracted.length > 0
+    ? `ZIP downloaded — ${extracted.length} image${extracted.length > 1 ? 's' : ''} as attachments`
+    : 'ZIP downloaded (no embedded images found)');
+}
+
 function openExportModal(){
   const sub = document.getElementById('export-sub');
   const menu = document.getElementById('export-menu');
@@ -2104,6 +2183,10 @@ function openExportModal(){
       document.getElementById('html-code').textContent = html;
       closeModal('modal-export');
       openModal('modal-html');
+    });
+    addExportOption(menu, 'Email + Images (ZIP)', 'Images as separate files — for API or desktop sending', 'zip', ()=>{
+      closeModal('modal-export');
+      exportEmailZip();
     });
     addExportOption(menu, 'PNG Image', 'For sharing as a preview or screenshot', 'image', ()=>{
       closeModal('modal-export');
@@ -2132,6 +2215,7 @@ function addExportOption(menu, title, sub, icon, onclick){
     mail:  '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
     image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
     file:  '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+    zip:   '<polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="12" y1="10" x2="12" y2="14"/>',
   };
   const opt = el('div',{class:'export-option',onclick});
   opt.innerHTML = `
@@ -2240,6 +2324,23 @@ document.getElementById('btn-copy-html').onclick = async ()=>{
     toast('HTML copied');
   }
 };
+
+// Logo scale sliders
+['logo-scale-slider','logo-scale-slider-m'].forEach(id=>{
+  const s = document.getElementById(id);
+  if(!s) return;
+  s.oninput = (e)=>{
+    state.logoScale = +e.target.value / 100;
+    // Sync both sliders + labels
+    ['logo-scale-slider','logo-scale-slider-m'].forEach(sid=>{
+      const el2 = document.getElementById(sid); if(el2 && el2 !== s) el2.value = e.target.value;
+    });
+    ['logo-scale-val','logo-scale-val-m'].forEach(vid=>{
+      const v = document.getElementById(vid); if(v) v.textContent = e.target.value+'%';
+    });
+    renderCanvas();
+  };
+});
 
 // Logo uploads (background uploads are wired inside renderBackgrounds)
 ['logo-upload','logo-upload-m'].forEach(id=>{
