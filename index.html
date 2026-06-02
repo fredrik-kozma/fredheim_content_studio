@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fredheim Livsstilssenter — Content Studio</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hgrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#A8CDB5"/>
+              <stop offset="100%" stop-color="#5A9E6F"/>
+            </linearGradient>
+          </defs>
+          <path d="M 165 80 C 100 180,105 290,175 365 C 215 400,270 410,298 405 C 295 380,282 340,260 290 C 235 230,205 165,180 115 C 174 100,168 88,165 80 Z" fill="url(#hgrad)"/>
+          <path d="M 167 92 C 195 175,240 280,295 398 C 290 395,270 380,248 355 C 215 315,185 250,165 180 C 158 150,158 115,167 92 Z" fill="#1A3D28"/>
+          <path d="M 435 80 C 500 180,495 290,425 365 C 385 400,330 410,302 405 C 305 380,318 340,340 290 C 365 230,395 165,420 115 C 426 100,432 88,435 80 Z" fill="url(#hgrad)"/>
+          <path d="M 335 270 L 365 270 L 378 240 L 392 305 L 406 215 L 420 270 L 445 270" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-info">
+        <div class="brand-name">Fredheim Livsstilssenter</div>
+        <div class="brand-tag">Content Studio</div>
+      </div>
+    </div>
+
+    <div class="mode-switch" id="mode-switch">
+      <button class="active" data-mode="social">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Social Post
+      </button>
+      <button data-mode="newsletter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Newsletter
+      </button>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-ghost" id="btn-new" title="Start fresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </button>
+      <button class="btn btn-ghost" id="btn-save">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Save
+      </button>
+      <button class="btn btn-accent" id="btn-export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar sidebar-left" data-active="tpl">
+
+      <!-- Mobile tabs -->
+      <div class="sb-tabs" id="sb-tabs">
+        <button class="active" data-panel="tpl">Templates</button>
+        <button data-panel="edit">Edit</button>
+        <button data-panel="style">Style</button>
+        <button data-panel="saved">Saved</button>
+      </div>
+
+      <!-- Templates panel -->
+      <div class="panel-tpl">
+        <div class="section">
+          <div class="section-title">Templates</div>
+          <div class="tpl-grid" id="tpl-grid"></div>
+        </div>
+      </div>
+
+      <!-- Edit panel -->
+      <div class="panel-edit">
+        <div class="section">
+          <div class="section-title">Edit Content</div>
+          <div id="field-editor"></div>
+        </div>
+      </div>
+
+      <!-- Style panel (mirrored on narrow screens) -->
+      <div class="panel-style right-mirror">
+        <div class="section">
+          <div class="section-title">Color Theme</div>
+          <div class="theme-grid" id="theme-grid-m"></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Brand Logo</div>
+          <div class="logo-grid" id="logo-grid-m"></div>
+          <input type="file" id="logo-upload-m" class="file-input" accept="image/*">
+        </div>
+        <div class="section" id="bg-section-m">
+          <div class="section-title">Background</div>
+          <div class="bg-grid" id="bg-grid-m"></div>
+          <input type="file" id="bg-upload-m" class="file-input" accept="image/*">
+        </div>
+      </div>
+
+      <!-- Saved panel (mirrored on narrow screens) -->
+      <div class="panel-saved right-mirror">
+        <div class="section">
+          <div class="section-title">My Designs</div>
+          <div class="saved-list" id="saved-list-m"></div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- CENTER PREVIEW -->
+    <main class="preview-area">
+      <div class="format-bar" id="format-bar"></div>
+
+      <div class="canvas-wrap">
+        <div class="canvas" id="canvas"></div>
+      </div>
+
+      <div class="canvas-info" id="canvas-info"></div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar sidebar-right">
+
+      <div class="section">
+        <div class="section-title">Color Theme</div>
+        <div class="theme-grid" id="theme-grid"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Brand Logo</div>
+        <div class="logo-grid" id="logo-grid"></div>
+        <input type="file" id="logo-upload" class="file-input" accept="image/*">
+      </div>
+
+      <div class="section" id="bg-section">
+        <div class="section-title">Background</div>
+        <div class="bg-grid" id="bg-grid"></div>
+        <input type="file" id="bg-upload" class="file-input" accept="image/*">
+      </div>
+
+      <div class="section">
+        <div class="section-title">My Designs</div>
+        <div class="saved-list" id="saved-list"></div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<!-- ============ MODALS ============ -->
+<div class="modal-bg" id="modal-save">
+  <div class="modal">
+    <div class="modal-title">Save your design</div>
+    <div class="modal-sub">Give it a name to come back to it later.</div>
+    <input type="text" id="save-name-input" placeholder="e.g. Hydration Tip — March">
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-secondary" onclick="closeModal('modal-save')">Cancel</button>
+      <button class="btn-modal btn-modal-primary" id="btn-confirm-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-export">
+  <div class="modal">
+    <div class="modal-title">Export your design</div>
+    <div class="modal-sub" id="export-sub">Choose how you'd like to save and share it.</div>
+    <div class="export-menu" id="export-menu"></div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-secondary" onclick="closeModal('modal-export')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-html">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-title">Email HTML</div>
+    <div class="modal-sub">Copy this and paste into Mailchimp, Gmail, or any email tool. Uses table-based layout and inline styles for maximum compatibility.</div>
+    <div class="code-box" id="html-code"></div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-secondary" onclick="closeModal('modal-html')">Close</button>
+      <button class="btn-modal btn-modal-primary" id="btn-copy-html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy to Clipboard
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-delete">
+  <div class="modal">
+    <div class="modal-title">Delete this design?</div>
+    <div class="modal-sub" id="delete-text">This can't be undone.</div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-modal-secondary" onclick="closeModal('modal-delete')">Cancel</button>
+      <button class="btn-modal btn-modal-danger" id="btn-confirm-delete">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-text">Saved</span>
+</div>
+
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
