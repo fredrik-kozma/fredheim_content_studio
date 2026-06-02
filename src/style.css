@@ -5,6 +5,7 @@
     --forest-core:#2D5F3F;
     --forest-mid:#3D7A52;
     --forest-light:#5A9E6F;
+    --fredheim-green:#5EB363;
     --forest-mist:#A8CDB5;
     --sage-pale:#E8F2EC;
     --sage-soft:#D0E6D8;
@@ -549,7 +550,7 @@
   }
   .slider-row input[type="range"]{
     width:100%;
-    accent-color:var(--forest-core);
+    accent-color:var(--fredheim-green);
     padding:0;
     margin:0;
     background:transparent;

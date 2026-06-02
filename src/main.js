@@ -36,7 +36,7 @@ const FORMATS = {
 
 // ===== Themes =====
 const THEMES = [
-  { id:'fredheim', name:'Fredheim', bg:'#F5F8F4', surface:'#FFFFFF', text:'#1B5E20', accent:'#4CAF50', muted:'#4A6B52', subtle:'#E1EFE3' },
+  { id:'fredheim', name:'Fredheim', bg:'#F5F8F4', surface:'#FFFFFF', text:'#000000', accent:'#5EB363', muted:'#000000', subtle:'#E1EFE3' },
   {id:'forest',  name:'Forest',  bg:'#FAF8F2', surface:'#FFFFFF', text:'#1A3D28', accent:'#2D5F3F', muted:'#5C5C58', subtle:'#E8F2EC'},
   {id:'deep',    name:'Deep Green', bg:'#2D5F3F', surface:'#1A3D28', text:'#FAF8F2', accent:'#A8CDB5', muted:'#D0E6D8', subtle:'#1A3D28'},
   {id:'sage',    name:'Sage',    bg:'#E8F2EC', surface:'#FAF8F2', text:'#1A3D28', accent:'#3D7A52', muted:'#5C5C58', subtle:'#D0E6D8'},
@@ -1430,7 +1430,7 @@ function renderFieldEditor(){
         const scaleDisplay = el('span',{style:'font-family:var(--f-mono);font-size:10px;color:var(--pebble);',text:scaleVal+'%'});
         scaleHead.appendChild(scaleDisplay);
         scaleWrap.appendChild(scaleHead);
-        const scaleRange = el('input',{type:'range',min:'50',max:'200',value:String(scaleVal),style:'width:100%;accent-color:var(--forest-core);'});
+        const scaleRange = el('input',{type:'range',min:'50',max:'200',value:String(scaleVal),style:'width:100%;accent-color:var(--fredheim-green);'});
         scaleRange.oninput = (e)=>{
           state.fields[scaleKey] = +e.target.value;
           scaleDisplay.textContent = e.target.value+'%';
