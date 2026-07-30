@@ -36,7 +36,7 @@ const FORMATS = {
 
 // ===== Themes =====
 const THEMES = [
-  { id:'fredheim', name:'Fredheim', bg:'#F5F8F4', surface:'#FFFFFF', text:'#000000', accent:'#5EB363', muted:'#000000', subtle:'#E1EFE3' },
+  { id:'fredheim', name:'Fredheim', bg:'#F5F8F4', surface:'#FFFFFF', text:'#1B5E20', accent:'#5EB363', muted:'#101010', subtle:'#E1EFE3' },
   {id:'forest',  name:'Forest',  bg:'#FAF8F2', surface:'#FFFFFF', text:'#1A3D28', accent:'#2D5F3F', muted:'#5C5C58', subtle:'#E8F2EC'},
   {id:'deep',    name:'Deep Green', bg:'#2D5F3F', surface:'#1A3D28', text:'#FAF8F2', accent:'#A8CDB5', muted:'#D0E6D8', subtle:'#1A3D28'},
   {id:'sage',    name:'Sage',    bg:'#E8F2EC', surface:'#FAF8F2', text:'#1A3D28', accent:'#3D7A52', muted:'#5C5C58', subtle:'#D0E6D8'},
@@ -548,7 +548,7 @@ function nlFooter(theme, fields){
   return `
     <div style="background:${theme.surface};padding:30px 40px;text-align:center;border-top:1px solid ${theme.subtle};">
       ${showTagline ? `<div style="font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:${theme.accent};margin-bottom:14px;">${escapeHtml(fields.tagline || 'Helse for kropp, sinn og sjel')}</div>` : ''}
-      ${showContact ? `<div style="font-size:11px;color:${theme.muted};line-height:1.7;">Fredheim Livsstilssenter · ${escapeHtml(fields.email || 'post@fredheim.org')}${showLinks ? '<br>' : ''}</div>` : ''}
+      ${showContact ? `<div style="font-size:11px;color:${theme.muted};line-height:1.7;">Fredheim Livsstilssenter · ${escapeHtml(fields.email || 'post@fredheim.org')}${fields.phone ? ' · ' + escapeHtml(fields.phone) : ''}${showLinks ? '<br>' : ''}</div>` : ''}
       ${showLinks   ? `<div style="font-size:11px;color:${theme.muted};line-height:1.7;"><a href="${escapeHtml(websiteUrl)}" style="color:${theme.accent};text-decoration:none;">${escapeHtml(websiteLinkText)}</a> · <a href="${escapeHtml(unsubUrl)}" style="color:${theme.accent};text-decoration:none;">${escapeHtml(unsubLinkText)}</a></div>` : ''}
     </div>
   `;
@@ -649,6 +649,7 @@ const TPL_nl_monthly = {
     {key:'article2_url',  label:'Article 2 Button URL',  type:'url',  default:'https://fredheim.org/om-fredheim/vare-program/nystart/'},
     {key:'tagline', label:'Footer Tagline', type:'text', default:'Helse for kropp, sinn og sjel'},
     {key:'email', label:'Footer Email', type:'text', default:'post@fredheim.org'},
+    {key:'phone', label:'Footer Phone', type:'text', default:'32 86 71 00'},
     {key:'website_url',        label:'Footer Website URL',            type:'url',  default:'https://fredheim.org'},
     {key:'website_link_text',  label:'Footer Website Link Text',      type:'text', default:'Besøk nettsiden'},
     {key:'unsub_url',          label:'Footer Unsubscribe URL',        type:'url',  default:'#'},
@@ -725,6 +726,7 @@ const TPL_nl_roundup = {
     {key:'cta_url',  label:'Optional CTA Button URL',  type:'url',  default:''},
     {key:'tagline', label:'Footer Tagline', type:'text', default:'Helse for kropp, sinn og sjel'},
     {key:'email', label:'Footer Email', type:'text', default:'post@fredheim.org'},
+    {key:'phone', label:'Footer Phone', type:'text', default:'32 86 71 00'},
     {key:'website_url',        label:'Footer Website URL',            type:'url',  default:'https://fredheim.org'},
     {key:'website_link_text',  label:'Footer Website Link Text',      type:'text', default:'Besøk nettsiden'},
     {key:'unsub_url',          label:'Footer Unsubscribe URL',        type:'url',  default:'#'},
@@ -797,6 +799,7 @@ const TPL_nl_announce = {
     {key:'closing', label:'Closing Note', type:'textarea', default:'Plassene er begrenset for å sikre god personlig oppfølging. Reserver tidlig for å være med blant de første.'},
     {key:'tagline', label:'Footer Tagline', type:'text', default:'Helse for kropp, sinn og sjel'},
     {key:'email', label:'Footer Email', type:'text', default:'post@fredheim.org'},
+    {key:'phone', label:'Footer Phone', type:'text', default:'32 86 71 00'},
     {key:'website_url',        label:'Footer Website URL',            type:'url',  default:'https://fredheim.org'},
     {key:'website_link_text',  label:'Footer Website Link Text',      type:'text', default:'Besøk nettsiden'},
     {key:'unsub_url',          label:'Footer Unsubscribe URL',        type:'url',  default:'#'},
@@ -889,6 +892,7 @@ const TPL_nl_trip = {
     {key:'booking_terms', label:'Booking Terms', type:'textarea', default:'Full refusjon ved avbestilling senest 30 dager før ankomst. Betaling innen 30 dager før oppholdet. Ring oss på +47 32 86 71 00 ved spørsmål.'},
     {key:'tagline', label:'Footer Tagline', type:'text', default:'Helse for kropp, sinn og sjel'},
     {key:'email', label:'Footer Email', type:'text', default:'post@fredheim.org'},
+    {key:'phone', label:'Footer Phone', type:'text', default:'32 86 71 00'},
     {key:'website_url',        label:'Footer Website URL',            type:'url',  default:'https://fredheim.org'},
     {key:'website_link_text',  label:'Footer Website Link Text',      type:'text', default:'Besøk nettsiden'},
     {key:'unsub_url',          label:'Footer Unsubscribe URL',        type:'url',  default:'#'},
@@ -1001,6 +1005,7 @@ const TPL_nl_custom = {
     ]},
     {key:'tagline', label:'Footer Tagline', type:'text', default:'Helse for kropp, sinn og sjel'},
     {key:'email', label:'Footer Email', type:'text', default:'post@fredheim.org'},
+    {key:'phone', label:'Footer Phone', type:'text', default:'32 86 71 00'},
     {key:'website_url',        label:'Footer Website URL',            type:'url',  default:'https://fredheim.org'},
     {key:'website_link_text',  label:'Footer Website Link Text',      type:'text', default:'Besøk nettsiden'},
     {key:'unsub_url',          label:'Footer Unsubscribe URL',        type:'url',  default:'#'},
